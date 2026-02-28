@@ -1,0 +1,64 @@
+name: Build BHTikTok++ IPA
+
+on:
+  workflow_dispatch:
+    inputs:
+      ipa_url:
+        description: "URL cua TikTok IPA da decrypt (bat buoc)"
+        default: ""
+        required: true
+        type: string
+      tweak_version:
+        description: "Phien ban BHTikTok (mac dinh: v1.9.3)"
+        default: "v1.9.3"
+        required: true
+        type: string
+      display_name:
+        description: "Ten hien thi cua app"
+        default: "TikTok"
+        required: true
+        type: string
+      bundle_id:
+        description: "Bundle ID"
+        default: "com.zhiliaoapp.musically"
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: macos-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download TikTok IPA
+        run: |
+          wget "${{ inputs.ipa_url }}" --no-verbose -O tiktok.ipa
+
+      - name: Install dependencies
+        run: brew install make ldid
+
+      - name: Set PATH
+        run: echo "$(brew --prefix make)/libexec/gnubin" >> $GITHUB_PATH
+
+      - name: Install cyan
+        run: pipx install --force https://github.com/asdfzxcvbn/pyzule-rw/archive/main.zip
+
+      - name: Download BHTikTok++ tweak
+        run: |
+          wget "https://github.com/raulsaeed/BHTikTokPlusPlus/releases/download/${{ inputs.tweak_version }}/com.raulsaeed.bhtiktok++_${{ inputs.tweak_version }}_iphoneos-arm.deb" --no-verbose -O bhtiktok.deb
+
+      - name: Inject tweak into IPA
+        run: |
+          cyan -i tiktok.ipa -o "BHTikTok++_${{ inputs.tweak_version }}.ipa" -uwef bhtiktok.deb -n "${{ inputs.display_name }}" -b ${{ inputs.bundle_id }}
+
+      - name: Upload to GitHub Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_number }}
+          name: BHTikTok++ ${{ inputs.tweak_version }} (Build ${{ github.run_number }})
+          files: BHTikTok++_${{ inputs.tweak_version }}.ipa
+          draft: true
