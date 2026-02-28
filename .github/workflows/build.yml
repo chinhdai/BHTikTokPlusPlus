@@ -9,8 +9,8 @@ on:
         required: true
         type: string
       tweak_version:
-        description: "Phien ban BHTikTok (mac dinh: v1.9.3)"
-        default: "v1.9.3"
+        description: "Phien ban BHTikTok (vi du: 1.9.3)"
+        default: "1.9.3"
         required: true
         type: string
       display_name:
@@ -49,7 +49,7 @@ jobs:
 
       - name: Download BHTikTok++ tweak
         run: |
-          wget "https://github.com/raulsaeed/BHTikTokPlusPlus/releases/download/${{ inputs.tweak_version }}/com.raulsaeed.bhtiktok++_${{ inputs.tweak_version }}_iphoneos-arm.deb" --no-verbose -O bhtiktok.deb
+          wget "https://github.com/raulsaeed/BHTikTokPlusPlus/releases/download/v${{ inputs.tweak_version }}/com.raulsaeed.bhtiktok++_${{ inputs.tweak_version }}_iphoneos-arm.deb" --no-verbose -O bhtiktok.deb
 
       - name: Inject tweak into IPA
         run: |
